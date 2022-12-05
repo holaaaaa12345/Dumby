@@ -133,9 +133,9 @@ def simulation(obj, n):
     prog_bar = st.progress(0)
     p_values = []
     with st.spinner('Please wait, the simulation is running...'):
-        for i in range(1, 100001):
-            if i%10000 == 0:
-                prog_bar.progress(int(i/1000))
+        for i in range(1, 1000001):
+            if i%100000 == 0:
+                prog_bar.progress(int(i/10000))
             sample_data = obj.get_sample(n)
             p_result = scipy.stats.ttest_1samp(sample_data, obj.mean).pvalue
             p_values.append(p_result)
@@ -166,7 +166,7 @@ def show_graph(obj, dist_choice):
     st.pyplot(fig)
 
 def get_fpr(p_values):
-    n_sig = len([i for i in p_values if i<0.05])/1000
+    n_sig = len([i for i in p_values if i<0.05])/10000
     return n_sig
 
 def show_pgraph(p_values):
@@ -210,10 +210,10 @@ def show_explanation():
              "specify their parameters, play with the sample size, and see the resulting FPR.")
 
     st.subheader("The Monte Carlo Simulation")
-    st.write("This program will take 100,000 independent samples from a chosen distribution with "
+    st.write("This program will take 1,000,000 independent samples from a chosen distribution with "
              "a chosen sample size and then perform one sample t test on them with the $h_{0}$ "
              "being true, meaning the value to test the difference from is the true mean of the " 
-             "distribution. It will then divide the number of significant p values by 100,000."
+             "distribution. It will then divide the number of significant p values by 1,000,000."
              "This last quantity is, by definition, the estimated FPR")
     
     st.subheader("Purpose")
