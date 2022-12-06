@@ -7,6 +7,37 @@ import scipy.stats
 from PIL import Image
 
 
+
+class Beta():
+
+    def input_parameter(self):
+        st.markdown(r"$\Large\alpha$")
+        self.alpha = st.number_input(label="None", value=0.5, step=0.5, 
+                                    label_visibility="collapsed")
+        st.markdown(r"$\Large\beta$")
+        self.beta = st.number_input(label="None", value=0.7, step=0.5, 
+                                    label_visibility="collapsed")
+        self.scipy_object = scipy.stats.beta(a=self.alpha, b=self.beta)
+        self.mean = self.scipy_object.mean()
+    
+    def validate_parameter(self):
+        if self.alpha <= 0 or self.alpha <=0:
+            raise ValueError
+
+    def get_axes(self):
+        x_axis = np.linspace(0, 1, 50)
+        y_axis = self.scipy_object.pdf(x_axis)
+        return x_axis, y_axis
+        
+    def show_function(self):
+        st.markdown(r"""$f(x; \alpha,\beta) = \frac{1}{B(\alpha, \beta)} x^{\alpha - 1}
+                 (1 - x)^{\beta - 1}$ where $B(\alpha, \beta) = \int_0^1 t^{\alpha - 1}
+                 (1 - t)^{\beta - 1} dt$""")
+
+    def get_sample(self, n):
+        return np.random.beta(a=self.alpha, b=self.beta, size=n)
+
+
 class Exponential():
 
     def input_parameter(self):
@@ -156,6 +187,8 @@ def get_dist_object(dist_choice):
         return Uniform()
     elif dist_choice == "Exponential":
         return Exponential()
+    elif dist_choice =="Beta":
+        return Beta()
 
 def show_graph(obj, dist_choice):
     x_axis, y_axis = obj.get_axes()
@@ -235,7 +268,8 @@ def main():
     # The navigation sidebar
     with st.sidebar:    
         dist_choice = st.radio("Choose the distribution", 
-                               ("Main Menu", "Normal", "Skew Normal", "Uniform", "Exponential"))
+                               ("Main Menu", "Normal", "Skew Normal", 
+                                "Uniform", "Exponential", "Beta"))
         df = get_history(st.session_state)
         st.write("Past Simulations")
         with st.container():
