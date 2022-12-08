@@ -7,6 +7,34 @@ import scipy.stats
 from PIL import Image
 
 
+class ChiSquare():
+
+    def input_parameter(self):
+        st.markdown(r"$\Large k$")
+        self.df = st.number_input(label="None", value=0.5, step=0.5, 
+                                     label_visibility="collapsed")
+        self.scipy_object = scipy.stats.chi2(df=self.df)
+        self.mean = self.scipy_object.mean()
+        self.s_dev = self.scipy_object.std()
+    
+    def validate_parameter(self):
+        if self.df <= 0:
+            raise ValueError
+
+    def get_axes(self):
+        reach = 4 * self.s_dev
+        x_axis = np.linspace(0, self.mean + reach, 70)
+        y_axis = self.scipy_object.pdf(x_axis)
+        return x_axis, y_axis
+        
+    def show_function(self):
+        st.markdown(r"""$\Large{f(x; k) = \frac{(1/2)^{k/2}}{\Gamma(k/2)} x^{k/2 - 1} 
+                    e^{-x/2}}$ where $\Large{\Gamma(x) = \int_0^{-\infty} 
+                    t^{x - 1} e^{-t} dt}$""")
+        
+    def get_sample(self, n):
+        return np.random.chisquare(df=self.df, size=n)
+    
 
 class Beta():
 
@@ -187,8 +215,10 @@ def get_dist_object(dist_choice):
         return Uniform()
     elif dist_choice == "Exponential":
         return Exponential()
-    elif dist_choice =="Beta":
+    elif dist_choice == "Beta":
         return Beta()
+    elif dist_choice == "Chi Square":
+        return ChiSquare()
 
 def show_graph(obj, dist_choice):
     x_axis, y_axis = obj.get_axes()
@@ -269,7 +299,8 @@ def main():
     with st.sidebar:    
         dist_choice = st.radio("Choose the distribution", 
                                ("Main Menu", "Normal", "Skew Normal", 
-                                "Uniform", "Exponential", "Beta"))
+                                "Uniform", "Exponential", "Beta",
+                                "Chi Square"))
         df = get_history(st.session_state)
         st.write("Past Simulations")
         with st.container():
@@ -287,6 +318,7 @@ def main():
     else:
         if (f"button_{dist_choice}") not in st.session_state:
             st.session_state[f"button_{dist_choice}"] = False
+        
         dist_object = get_dist_object(dist_choice)
         st.subheader(f"{dist_choice} Distribution")
         st.write("You can adjust the parameters.")
