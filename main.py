@@ -256,7 +256,7 @@ def get_history(session):
     return df
 
 def show_explanation():
-    with open("explanation.txt", "r") as file:
+    with open("README.md", "r") as file:
         exp = file.read()
     st.markdown(exp, unsafe_allow_html=True)
 
