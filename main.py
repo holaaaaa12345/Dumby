@@ -6,13 +6,14 @@ plt.style.use("seaborn-dark")
 import scipy.stats
 from PIL import Image
 
+# Add parameter constraint information
 
 class ChiSquare():
 
     def input_parameter(self):
         st.markdown(r"$\Large k$")
         self.df = st.number_input(label="None", value=0.5, step=0.5, 
-                                     label_visibility="collapsed")
+                                  label_visibility="collapsed")
         self.scipy_object = scipy.stats.chi2(df=self.df)
         self.mean = self.scipy_object.mean()
         self.s_dev = self.scipy_object.std()
@@ -135,10 +136,10 @@ class SkewNormal():
         st.markdown(r"Skewness $\Large{\alpha:}$")
         self.alpha = st.number_input(label="None", value=5.0, step=0.5, 
                                      label_visibility="collapsed")
-        self.scipy_obj = scipy.stats.skewnorm(self.alpha, self.loc,
+        self.scipy_object = scipy.stats.skewnorm(self.alpha, self.loc,
                                               self.scale)
-        self.mean = self.scipy_obj.mean()
-        self.s_dev = self.scipy_obj.std()
+        self.mean = self.scipy_object.mean()
+        self.s_dev = self.scipy_object.std()
 
     def validate_parameter(self):
         if self.scale <= 0:
@@ -147,7 +148,7 @@ class SkewNormal():
     def get_axes(self):
         reach = 4 * self.s_dev
         x_axis = np.linspace(self.mean - reach, self.mean + reach, 70)
-        y_axis = self.scipy_obj.pdf(x_axis)
+        y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
         
     def show_function(self):
@@ -157,7 +158,7 @@ class SkewNormal():
                  {\sqrt {2\pi }}}e^{-{\frac {t^{2}}{2}}}\ dt""")
 
     def get_sample(self, n):
-        return self.scipy_obj.rvs(size=n)
+        return self.scipy_object.rvs(size=n)
 
 
 class Normal():
@@ -255,37 +256,9 @@ def get_history(session):
     return df
 
 def show_explanation():
-    st.subheader("P value and False Positive Rate (FPR)")
-    st.write("The one sample t-test will produce a p value. By definition, p value is the "
-             "probability of obtaining at least as extreme as a statistic given $h_{0}$ is true. "
-             "If the p value of a statistic is below 5%, that is when it is in the critical "
-             "region, then the null hypothesis can be rejected. If all assumptions are met, "
-             "the FPR, the probability that the t test falsely produce "
-             "significant p value when the h0 is actually true, should equal the probability "
-             "of obtaining result inside the critical region. Therefore, under the correct use " 
-             "of t-test, given the $h_{0}$, the FPR should be 5%. ")
-    
-    st.subheader("Normality Assumption and FPR")
-    st.write("This simulation will satisfy all but the normality assumption. If normality is "
-             "violated, the FPR can still be 5% provided that the sample size is large. "
-             "However, how large that sample size should be varies depending on the distribution. "
-             "The simulation lets you choose between 6 different distributions for the data, "
-             "specify their parameters, play with the sample size, and see the resulting FPR.")
-
-    st.subheader("The Monte Carlo Simulation")
-    st.write("This program will take 1,000,000 independent samples from a chosen distribution with "
-             "a chosen sample size and then perform one sample t test on them with the $h_{0}$ "
-             "being true, meaning the value to test the difference from is the true mean of the " 
-             "distribution. It will then divide the number of significant p values by 1,000,000."
-             "This last quantity is, by definition, the estimated FPR")
-    
-    st.subheader("Purpose")
-    st.write("This program has zero practical benefit :stuck_out_tongue_closed_eyes:. "
-             "hopefully you can get a good sense of the normality assumption and an "
-             "intuition for the robustness, the degree to which its assumption can be "
-             "violated without sacrificing accuracy, of one sample t test.")
-    
-
+    with open("explanation.txt", "r") as file:
+        exp = file.read()
+    st.markdown(exp, unsafe_allow_html=True)
 
 def main():
     # Initiating the necessary session state
@@ -296,23 +269,28 @@ def main():
         st.session_state["fpr"] = []    
     
     # The navigation sidebar
-    with st.sidebar:    
-        dist_choice = st.radio("Choose the distribution", 
+    with st.sidebar:
+        st.subheader("Navigation")    
+        dist_choice = st.radio("None", 
                                ("Main Menu", "Normal", "Skew Normal", 
                                 "Uniform", "Exponential", "Beta",
-                                "Chi Square"))
+                                "Chi Square"),
+                                label_visibility="collapsed")
         df = get_history(st.session_state)
-        st.write("Past Simulations")
+        st.subheader("Simulation History")
         with st.container():
             st.dataframe(df, use_container_width=True)
 
     # The main menu page
     if dist_choice == "Main Menu":
-        st.title("Monte Carlo Simulation to estimate True False Positive Rate of "
-                 "one sample T-test When the Normality Assumption is Violated")
+        st.title("Monte Carlo Simulation to estimate False Positive Rate of "
+                 "one sample t-test When the Normality Assumption is Violated*")
         with st.expander("See Explanation"):
             show_explanation()
         show_ava_dist()
+        st.caption("*Inspired by a youtube video made by jbstatistics "
+                   "(https://www.youtube.com/watch?v=U1O4ZFKKD1k&ab_channel=jbstatistics)")
+        
     
     # The distributions and simulations page
     else:
