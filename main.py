@@ -10,7 +10,7 @@ from PIL import Image
 class ChiSquare():
 
     def input_parameter(self):
-        st.markdown(r"$\Large k$")
+        st.markdown(r"$\Large k:$")
         self.df = st.number_input(label="None", value=1, step=1, 
                                   label_visibility="collapsed")
         self.scipy_object = scipy.stats.chi2(df=self.df)
@@ -28,8 +28,8 @@ class ChiSquare():
         return x_axis, y_axis
         
     def show_function(self):
-        st.markdown(r"""$\Large{f(x; k) = \frac{(1/2)^{k/2}}{\Gamma(k/2)} x^{k/2 - 1} 
-                    e^{-x/2}}$ where $\Gamma(x) = \int_0^{-\infty} 
+        st.markdown(r"""$f(x; k) = \frac{(1/2)^{k/2}}{\Gamma(k/2)} x^{k/2 - 1} 
+                    e^{-x/2}$ where $\Gamma(x) = \int_0^{-\infty} 
                     t^{x - 1} e^{-t} dt$ and $k\in\mathbb{N}^{+}$""")
         
     def get_sample(self, n):
@@ -39,10 +39,10 @@ class ChiSquare():
 class Beta():
 
     def input_parameter(self):
-        st.markdown(r"$\Large\alpha$")
+        st.markdown(r"$\Large\alpha:$")
         self.alpha = st.number_input(label="None", value=0.5, step=0.5, 
                                      label_visibility="collapsed")
-        st.markdown(r"$\Large\beta$")
+        st.markdown(r"$\Large\beta:$")
         self.beta = st.number_input(label="None", value=0.7, step=0.5, 
                                     label_visibility="collapsed")
         self.scipy_object = scipy.stats.beta(a=self.alpha, b=self.beta)
@@ -69,7 +69,7 @@ class Beta():
 class Exponential():
 
     def input_parameter(self):
-        st.markdown(r"$\Large\beta$")
+        st.markdown(r"$\Large\beta:$")
         self.beta = st.number_input(label="None", value=1.0, step=0.5, 
                                     label_visibility="collapsed")
         self.scipy_object = scipy.stats.expon(loc=0, scale=self.beta)
@@ -87,8 +87,8 @@ class Exponential():
         return x_axis, y_axis
         
     def show_function(self):
-        st.markdown(r"""$\Large{f(x; \frac{1}{\beta}) = \frac{1}{\beta} 
-                    e^{-\frac{x}{\beta}}}$ where $\beta>0$""")
+        st.markdown(r"""$f(x; \frac{1}{\beta}) = \frac{1}{\beta} 
+                    e^{-\frac{x}{\beta}}$ where $\beta>0$""")
 
     def get_sample(self, n):
         return np.random.exponential(self.beta, size=n)
@@ -127,13 +127,13 @@ class Uniform():
 class SkewNormal():
 
     def input_parameter(self):
-        st.markdown(r"Location $\Large{\xi:}$")
+        st.markdown(r"$\Large{\xi}$ (Location) :")
         self.loc = st.number_input(label="None", value=0.0, step=0.5, 
                                    label_visibility="collapsed")
-        st.markdown(r"Scale $\Large{\omega:}$")
+        st.markdown(r"$\Large{\omega}$ (Scale) :")
         self.scale = st.number_input(label="None", value=1.0, step=0.5, 
                                      label_visibility="collapsed")
-        st.markdown(r"Skewness $\Large{\alpha:}$")
+        st.markdown(r"$\Large{\alpha}$ (Skewness) :")
         self.alpha = st.number_input(label="None", value=5.0, step=0.5, 
                                      label_visibility="collapsed")
         self.scipy_object = scipy.stats.skewnorm(self.alpha, self.loc,
@@ -262,7 +262,7 @@ def show_explanation():
 
 def main():
 
-    # Initiating the necessary session state
+    # Initiating the history session state
     if "counter" not in st.session_state:
         st.session_state["counter"] = 1
         st.session_state["distribution"] =[]
@@ -292,7 +292,6 @@ def main():
         st.caption("*Inspired by a youtube video made by jbstatistics "
                    "(https://www.youtube.com/watch?v=U1O4ZFKKD1k&ab_channel=jbstatistics)")
         
-    
     # The distributions and simulations page
     else:
         if (f"button_{dist_choice}") not in st.session_state:
@@ -312,6 +311,8 @@ def main():
             dist_object.validate_parameter()
         except ValueError:
             st.error("Invalid parameter(s). Please refer to the stated PDF.")
+        
+        # Sample size input and plot output
         else:
             button_1 = st.button("NEXT", on_click=callback_button_1,
                                  args=(dist_choice,))
