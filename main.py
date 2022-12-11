@@ -26,8 +26,9 @@ class ChiSquare():
         x_axis = np.linspace(0, self.mean + reach, 70)
         y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
-        
-    def show_function(self):
+    
+    @staticmethod
+    def show_function():
         st.markdown(r"""$f(x; k) = \frac{(1/2)^{k/2}}{\Gamma(k/2)} x^{k/2 - 1} 
                     e^{-x/2}$ where $\Gamma(x) = \int_0^{-\infty} 
                     t^{x - 1} e^{-t} dt$ and $k\in\mathbb{N}^{+}$""")
@@ -56,8 +57,9 @@ class Beta():
         x_axis = np.linspace(0, 1, 50)
         y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
-        
-    def show_function(self):
+    
+    @staticmethod
+    def show_function():
         st.markdown(r"""$f(x; \alpha,\beta) = \frac{1}{B(\alpha, \beta)} x^{\alpha - 1}
                     (1 - x)^{\beta - 1}$ where $B(\alpha, \beta) = \int_0^1 t^{\alpha - 1}
                     (1 - t)^{\beta - 1} dt$ and $\alpha>0$ and $\beta>0$""")
@@ -85,8 +87,9 @@ class Exponential():
         x_axis = np.linspace(0, self.mean + reach, 50)
         y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
-        
-    def show_function(self):
+
+    @staticmethod
+    def show_function():
         st.markdown(r"""$f(x; \frac{1}{\beta}) = \frac{1}{\beta} 
                     e^{-\frac{x}{\beta}}$ where $\beta>0$""")
 
@@ -116,7 +119,8 @@ class Uniform():
         y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
         
-    def show_function(self):
+    @staticmethod
+    def show_function():
         st.markdown(r"""$f(x; a,b) = {\begin{cases}{\frac {1}{b-a}}&{\text{for }}x\in [a,b]\\
                     0&{\text{otherwise}}\end{cases}}$ where $a<b$""")
 
@@ -150,8 +154,9 @@ class SkewNormal():
         x_axis = np.linspace(self.mean - reach, self.mean + reach, 70)
         y_axis = self.scipy_object.pdf(x_axis)
         return x_axis, y_axis
-        
-    def show_function(self):
+
+    @staticmethod    
+    def show_function():
         st.markdown(r"""$\displaystyle{f(x;\xi,\omega,\alpha)=\frac {2}{\omega {\sqrt {2\pi }}}}e^
                     {-{\frac {(x-\xi )^{2}}{2\omega ^{2}}}}\int _{-\infty }^
                     {\alpha \left({\frac {x-\xi }{\omega }}\right)}{\frac{1}
@@ -180,8 +185,9 @@ class Normal():
         x_axis = np.linspace(self.mean - reach, self.mean + reach, 40)
         y_axis = scipy.stats.norm.pdf(x_axis, self.mean, self.s_dev)
         return x_axis, y_axis
-        
-    def show_function(self):
+    
+    @staticmethod
+    def show_function():
         st.markdown(r"""$f(x; \mu, \sigma) = \frac{1}{\sigma\sqrt{2\pi}}e^{\large{
                     { -\left(\frac{x-\mu}{2\sigma}\right)^{\!2}}}}$ where $\sigma>0$""")
 
@@ -256,7 +262,7 @@ def get_history(session):
     return df
 
 def show_explanation():
-    with open("README.md", "r") as file:
+    with open("explanation.txt", "r") as file:
         exp = file.read()
     st.markdown(exp, unsafe_allow_html=True)
 
