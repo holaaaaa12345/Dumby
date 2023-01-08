@@ -1,4 +1,4 @@
-<h4>p value and False Positive Rate FPR</h4>
+<h4>p value and False Positive Rate (FPR)</h4>
 
 The one sample t-test will produce a $p$ value. By definition, $p$ value is the probability 
 of obtaining at least as extreme as a statistic given $h_{0}$ is true. If the $p$ value of a statistic 
