@@ -6,7 +6,10 @@ import pandas as pd
 import scipy.stats
 from PIL import Image
 
+NUMBER_OF_ITERATIONS = 500_000
 
+
+# Each distributions have their own class
 class ChiSquare():
 
     def input_parameter(self):
@@ -195,13 +198,15 @@ class Normal():
         return np.random.normal(self.mean, self.s_dev, size=n)
 
 
-def simulation(obj, n):
+def simulation(obj, n, n_iter):
     prog_bar = st.progress(0)
     p_values = []
+    ten_percent = n_iter/10
+    denom = n_iter/100
     with st.spinner('Please wait, the simulation is running...'):
-        for i in range(1, 1000001):
-            if i%100000 == 0:
-                prog_bar.progress(int(i/10000))
+        for i in range(1, n_iter+1):
+            if i%ten_percent == 0:
+                prog_bar.progress(int(i/denom))
             sample_data = obj.get_sample(n)
             p_result = scipy.stats.ttest_1samp(sample_data, obj.mean).pvalue
             p_values.append(p_result)
@@ -235,8 +240,9 @@ def show_graph(obj, dist_choice):
                  fontdict={'fontsize': 18})
     st.pyplot(fig)
 
-def get_fpr(p_values):
-    n_sig = len([i for i in p_values if i<0.05])/10000
+def get_fpr(p_values, n_iter):
+    denom = n_iter/100
+    n_sig = len([i for i in p_values if i<0.05])/denom
     return n_sig
 
 def show_pgraph(p_values):
@@ -335,8 +341,8 @@ def main():
 
                 button_b = st.button("SIMULATE") 
                 if button_b:
-                    p_values = simulation(dist_object, sample_size)
-                    fpr = get_fpr(p_values)
+                    p_values = simulation(dist_object, sample_size, NUMBER_OF_ITERATIONS)
+                    fpr = get_fpr(p_values, NUMBER_OF_ITERATIONS)
 
                     # Show Results
                     col3, col4 = st.columns(2)

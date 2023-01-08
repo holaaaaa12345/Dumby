@@ -17,10 +17,10 @@ sample from, specify their parameters, pick with the sample size, and see the re
 
 <h4>The Monte Carlo Simulation and FPR</h4>
 
-This program will take $1,000,000$ independent samples from a chosen distribution with a chosen sample 
+This program will take $500,000$ independent samples from a chosen distribution with a chosen sample 
 size and then perform one sample t test on them with the $h_{0}$ being true, meaning the value to test 
 the difference from is the true mean of the distribution. It will then divide the number of significant 
-$p$ values by $1,000,000$. This last quantity is, by definition, the FPR.
+$p$ values by $500,000$. This last quantity is, by definition, the FPR.
 
 <h4>Purpose</h4>
 
