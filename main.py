@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.style.use("seaborn-dark")
 import pandas as pd
-import scipy.stats
+from scipy.stats import chi2, beta, expon, uniform, skewnorm, norm, ttest_1samp
 from PIL import Image
 
 NUMBER_OF_ITERATIONS = 500_000
@@ -16,7 +16,7 @@ class ChiSquare():
         st.markdown(r"$\Large k:$")
         self.df = st.number_input(label="None", value=1, step=1, 
                                   label_visibility="collapsed")
-        self.scipy_object = scipy.stats.chi2(df=self.df)
+        self.scipy_object = chi2(df=self.df)
         self.mean = self.scipy_object.mean()
         self.s_dev = self.scipy_object.std()
     
@@ -49,7 +49,7 @@ class Beta():
         st.markdown(r"$\Large\beta:$")
         self.beta = st.number_input(label="None", value=0.7, step=0.5, 
                                     label_visibility="collapsed")
-        self.scipy_object = scipy.stats.beta(a=self.alpha, b=self.beta)
+        self.scipy_object = beta(a=self.alpha, b=self.beta)
         self.mean = self.scipy_object.mean()
     
     def validate_parameter(self):
@@ -77,7 +77,7 @@ class Exponential():
         st.markdown(r"$\Large\beta:$")
         self.beta = st.number_input(label="None", value=1.0, step=0.5, 
                                     label_visibility="collapsed")
-        self.scipy_object = scipy.stats.expon(loc=0, scale=self.beta)
+        self.scipy_object = expon(loc=0, scale=self.beta)
         self.mean = self.scipy_object.mean()
         self.s_dev = self.scipy_object.std()
     
@@ -109,7 +109,7 @@ class Uniform():
         st.markdown(r"$\Large{b:}$")
         self.b = st.number_input(label="None", value=2.0, step=0.5, 
                                  label_visibility="collapsed")
-        self.scipy_object = scipy.stats.uniform(self.a, self.b-self.a)
+        self.scipy_object = uniform(self.a, self.b-self.a)
         self.mean = self.scipy_object.mean()
         self.s_dev = self.scipy_object.std()
     
@@ -143,7 +143,7 @@ class SkewNormal():
         st.markdown(r"$\Large{\alpha}$ (Skewness) :")
         self.alpha = st.number_input(label="None", value=5.0, step=0.5, 
                                      label_visibility="collapsed")
-        self.scipy_object = scipy.stats.skewnorm(self.alpha, self.loc,
+        self.scipy_object = skewnorm(self.alpha, self.loc,
                                                  self.scale)
         self.mean = self.scipy_object.mean()
         self.s_dev = self.scipy_object.std()
@@ -186,7 +186,7 @@ class Normal():
     def get_axes(self):
         reach = 3*self.s_dev
         x_axis = np.linspace(self.mean - reach, self.mean + reach, 40)
-        y_axis = scipy.stats.norm.pdf(x_axis, self.mean, self.s_dev)
+        y_axis = norm.pdf(x_axis, self.mean, self.s_dev)
         return x_axis, y_axis
     
     @staticmethod
@@ -208,7 +208,7 @@ def simulation(obj, n, n_iter):
             if i%ten_percent == 0:
                 prog_bar.progress(int(i/denom))
             sample_data = obj.get_sample(n)
-            p_result = scipy.stats.ttest_1samp(sample_data, obj.mean).pvalue
+            p_result = ttest_1samp(sample_data, obj.mean).pvalue
             p_values.append(p_result)
     st.success('Done!')
     return p_values
