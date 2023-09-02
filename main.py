@@ -6,7 +6,7 @@ import pandas as pd
 from scipy.stats import chi2, beta, expon, uniform, skewnorm, norm, ttest_1samp
 from PIL import Image
 
-NUMBER_OF_ITERATIONS = 500_000
+NUMBER_OF_ITERATIONS = 200_000
 
 
 # Each distributions have their own class
@@ -258,7 +258,6 @@ def update_history(session, dist, n, FPR):
     session["distribution"].append(dist)
     session["sample_size"].append(n)
     session["fpr"].append(FPR)
-    session["counter"] += 1
 
 def get_history(session):
     df_index = range(1, len(session["fpr"])+1)
@@ -272,14 +271,18 @@ def show_explanation():
         exp = file.read()
     st.markdown(exp, unsafe_allow_html=True)
 
+def set_empty_history():
+    st.session_state["distribution"] =[]
+    st.session_state["sample_size"] = []
+    st.session_state["fpr"] = []    
+
 def main():
 
     # Initiating the history session state
-    if "counter" not in st.session_state:
-        st.session_state["counter"] = 1
-        st.session_state["distribution"] =[]
-        st.session_state["sample_size"] = []
-        st.session_state["fpr"] = []    
+    if "initiator" not in st.session_state:
+        st.session_state["initiator"] = None
+        set_empty_history()
+
     
     # The navigation sidebar
     with st.sidebar:
@@ -289,10 +292,14 @@ def main():
                                "Uniform", "Exponential", "Beta",
                                "Chi Square"),
                                label_visibility="collapsed")
-        df = get_history(st.session_state)
         st.subheader("Simulation History")
+        button_clear = st.button("Clear", on_click=set_empty_history)
+        df = get_history(st.session_state)
+        button_download = st.download_button("Download (csv)", df.to_csv(),
+                                             "fpr_mc_ttest.csv")
         with st.container():
             st.dataframe(df, use_container_width=True)
+
 
     # The main menu page
     if dist_choice == "Main Menu":
@@ -335,12 +342,12 @@ def main():
                                               min_value=2)
             
                 # Hypothesis
-                st.markdown("__The hypothesis to be tested__")
+                st.markdown("__Hypothesis to be tested__")
                 st.markdown(rf"$H_{0}:\mu =$ {dist_object.mean}")
                 st.markdown(rf"$H_{1}:\mu \neq$ {dist_object.mean}")
 
-                button_b = st.button("SIMULATE") 
-                if button_b:
+                button_2 = st.button("SIMULATE", type="primary") 
+                if button_2:
                     p_values = simulation(dist_object, sample_size, NUMBER_OF_ITERATIONS)
                     fpr = get_fpr(p_values, NUMBER_OF_ITERATIONS)
 
