@@ -6,10 +6,26 @@ import pandas as pd
 from scipy.stats import chi2, beta, expon, uniform, skewnorm, norm, ttest_1samp
 from PIL import Image
 
-NUMBER_OF_ITERATIONS = 200_000
+NUMBER_OF_ITERATIONS = 200_000  # For the monte carlo simulation
+
+# There are 6 distributions to perform simulation on, namely:
+
+# 1) Chi Square
+# 2) Beta
+# 3) Exponential
+# 3) Uniform
+# 5) Skew Normal
+# 6) Normal
+
+# Each distribution has their own class, each with these 5 methods: 
+    
+# 1) input_parameter : specify parameters
+# 2) validate_parameter : notify invalid parameters
+# 3) get_axes : get x_axis such that the pdf plot is proportional
+# 4) show_function : get pdf function
+# 5) get_sample : take sample 
 
 
-# Each distributions have their own class
 class ChiSquare():
 
     def input_parameter(self):
@@ -199,6 +215,10 @@ class Normal():
 
 
 def simulation(obj, n, n_iter):
+    # This function performs the monte carlo simulation
+    # along with a progress bar and returns the p values 
+    # for each iteration.
+
     prog_bar = st.progress(0)
     p_values = []
     ten_percent = n_iter/10
@@ -211,14 +231,23 @@ def simulation(obj, n, n_iter):
             p_result = ttest_1samp(sample_data, obj.mean).pvalue
             p_values.append(p_result)
     st.success('Done!')
-    return p_values
+
+    denom = n_iter/100
+    fpr = len([i for i in p_values if i<0.05])/denom
+    
+    return p_values, fpr
 
 def show_ava_dist():
+    # This void function shows the image of avalaible distributions
+    # to choose from.
+
     st.subheader("Distributions to choose from. Pick one from the left bar")
     with Image.open("./distributions.png") as dist_image:
         st.image(dist_image)
 
 def get_dist_object(dist_choice):
+    # This function returns the chosen distribution's class.
+
     if dist_choice == "Normal":
         return Normal()
     elif dist_choice == "Skew Normal":
@@ -233,33 +262,42 @@ def get_dist_object(dist_choice):
         return ChiSquare()
 
 def show_graph(obj, dist_choice):
+    # This void function shows the pdf graph of the chosen
+    # distribution.
+
     x_axis, y_axis = obj.get_axes()
     fig, ax = plt.subplots()
     ax.fill_between(x_axis, 0, y_axis, color="maroon")
-    ax.set_title(f"Plot of your {dist_choice} Distribution", 
+    ax.set_title(f"PDF plot of your {dist_choice} Distribution", 
                  fontdict={'fontsize': 18})
     st.pyplot(fig)
 
-def get_fpr(p_values, n_iter):
-    denom = n_iter/100
-    n_sig = len([i for i in p_values if i<0.05])/denom
-    return n_sig
 
 def show_pgraph(p_values):
+    # This void function shows the histogram of the obtained p_values
+
     fig, ax = plt.subplots()
     ax.hist(p_values, bins=40, color="maroon", density=True)
     ax.set_title("The distribution of p-values", fontdict={'fontsize': 18})
     st.pyplot(fig)
         
 def callback_button_1 (dist_choice):
+    # This function changes the session_state for the selected
+    # distribution such that the selection will not be reset
+    # after another button is clicked
+
     st.session_state[f"button_{dist_choice}"] = True
 
 def update_history(session, dist, n, FPR):
+    # This void function updates the simulation history table
+
     session["distribution"].append(dist)
     session["sample_size"].append(n)
     session["fpr"].append(FPR)
 
 def get_history(session):
+    # This function returns the dataframe of simulation history
+
     df_index = range(1, len(session["fpr"])+1)
     df = pd.DataFrame({"Distribution": session["distribution"], 
                       "N": session["sample_size"], "FPR": session["fpr"]}, 
@@ -267,14 +305,24 @@ def get_history(session):
     return df
 
 def show_explanation():
+    # This void function reads and shows the explanation file
+
     with open("explanation.txt", "r") as file:
         exp = file.read()
     st.markdown(exp, unsafe_allow_html=True)
 
 def set_empty_history():
+    # This void function sets the history metrics to be empty
+
     st.session_state["distribution"] =[]
     st.session_state["sample_size"] = []
-    st.session_state["fpr"] = []    
+    st.session_state["fpr"] = []
+
+def show_hypothesis(mean):
+    st.markdown("__Hypothesis to be tested__")
+    st.markdown(rf"$H_{0}:\mu =$ {mean}")
+    st.markdown(rf"$H_{1}:\mu \neq$ {mean}")
+
 
 def main():
 
@@ -282,7 +330,6 @@ def main():
     if "initiator" not in st.session_state:
         st.session_state["initiator"] = None
         set_empty_history()
-
     
     # The navigation sidebar
     with st.sidebar:
@@ -292,6 +339,8 @@ def main():
                                "Uniform", "Exponential", "Beta",
                                "Chi Square"),
                                label_visibility="collapsed")
+
+        # Simulation history
         st.subheader("Simulation History")
         button_clear = st.button("Clear", on_click=set_empty_history)
         df = get_history(st.session_state)
@@ -299,7 +348,6 @@ def main():
                                              "fpr_mc_ttest.csv")
         with st.container():
             st.dataframe(df, use_container_width=True)
-
 
     # The main menu page
     if dist_choice == "Main Menu":
@@ -309,10 +357,13 @@ def main():
             show_explanation()
         show_ava_dist()
         st.caption("*Inspired by a youtube video made by jbstatistics "
-                   "(https://www.youtube.com/watch?v=U1O4ZFKKD1k&ab_channel=jbstatistics)")
+                   "(youtube.com/watch?v=U1O4ZFKKD1k&ab_channel=jbstatistics)")
         
     # The distributions and simulations page
     else:
+
+        # Initialize the selected distrubution's session state 
+        # (used for callback_button_1 later)
         if (f"button_{dist_choice}") not in st.session_state:
             st.session_state[f"button_{dist_choice}"] = False
         
@@ -333,23 +384,21 @@ def main():
         
         # Sample size input and plot output
         else:
-            button_1 = st.button("NEXT", on_click=callback_button_1,
-                                 args=(dist_choice,))
-            if button_1 or st.session_state[f"button_{dist_choice}"]:
+            button_1 = st.button("NEXT", on_click=callback_button_1,  # button_{dist_choice}=True
+                                 args=(dist_choice,))        
+            if button_1 or st.session_state[f"button_{dist_choice}"]:  # Compensate session reset
                 with col2:
                     show_graph(dist_object, dist_choice)
+                
+                #The following is no longer within column 1 & 2
                 sample_size = st.number_input("Sample size: ", value=5, 
                                               min_value=2)
-            
-                # Hypothesis
-                st.markdown("__Hypothesis to be tested__")
-                st.markdown(rf"$H_{0}:\mu =$ {dist_object.mean}")
-                st.markdown(rf"$H_{1}:\mu \neq$ {dist_object.mean}")
+                show_hypothesis(dist_object.mean)
 
                 button_2 = st.button("SIMULATE", type="primary") 
                 if button_2:
-                    p_values = simulation(dist_object, sample_size, NUMBER_OF_ITERATIONS)
-                    fpr = get_fpr(p_values, NUMBER_OF_ITERATIONS)
+                    p_values, fpr = simulation(dist_object, sample_size, 
+                                               NUMBER_OF_ITERATIONS)
 
                     # Show Results
                     col3, col4 = st.columns(2)
