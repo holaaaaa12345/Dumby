@@ -216,8 +216,8 @@ class Normal():
 
 def simulation(obj, n, n_iter):
     # This function performs the monte carlo simulation
-    # along with a progress bar and returns the p values 
-    # for each iteration.
+    # along with a progress bar then returns the p values 
+    # for each iteration and the overall FPR. 
 
     prog_bar = st.progress(0)
     p_values = []
@@ -319,6 +319,8 @@ def set_empty_history():
     st.session_state["fpr"] = []
 
 def show_hypothesis(mean):
+    # This void function shows the hypothesis given the parameters 
+
     st.markdown("__Hypothesis to be tested__")
     st.markdown(rf"$H_{0}:\mu =$ {mean}")
     st.markdown(rf"$H_{1}:\mu \neq$ {mean}")
